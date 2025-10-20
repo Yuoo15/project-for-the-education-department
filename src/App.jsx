@@ -8,10 +8,9 @@ function App() {
   const [selected, setSelected] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-
   const [isStarted, setIsStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(10 * 60);
+
   useEffect(() => {
     if (isFinished || !isStarted) return;
 
@@ -43,10 +42,6 @@ function App() {
 
     if (index === questions[current].correct) {
       setScore((prev) => prev + 1);
-      setErrorMessage("✅ Правильно!");
-    } else {
-      const correctText = questions[current].options[questions[current].correct];
-      setErrorMessage(`❌ Неправильно! Правильный ответ: ${correctText}`);
     }
   };
 
@@ -55,7 +50,6 @@ function App() {
       setCurrent(current + 1);
       setSelected(null);
       setIsAnswered(false);
-      setErrorMessage("");
     } else {
       setIsFinished(true);
     }
@@ -67,7 +61,6 @@ function App() {
     setSelected(null);
     setIsAnswered(false);
     setIsFinished(false);
-    setErrorMessage("");
     setTimeLeft(10 * 60);
     setIsStarted(false);
   };
@@ -81,21 +74,24 @@ function App() {
     <>
       {!isStarted && !isFinished && (
         <>
-        <div className="start-screen">
-          <button onClick={startTest}>Начать тест</button>
-        </div>
+          <div className="start-screen">
+            <button onClick={startTest}>Начать тест</button>
+          </div>
 
-        <div className="mob-screen">
-          <h1>СОРТИРОВКА БЮЛЛЕТЕНИЙ интерактив</h1>
-          <p>Рассортируйте бюллетени по голосам, поданным за кандидатов, отделяя недействительные бюллетени<br />(15 бюллетеней за 10 мин)</p>
-          <h2>ИСХОДНЫЕ ДАННЫЕ:</h2>
-          <ul>
-            <li>выборы акима сельского округа</li>
-            <li>кандидаты № 1, № 2, № 3</li>
-            <li>члены УИК, выдавшие бюллетени: Ахметова, Мукашева, Алматова</li>
-          </ul>
-          <button onClick={startTest}>Начать тест</button>
-        </div>
+          <div className="mob-screen">
+            <h1>СОРТИРОВКА БЮЛЛЕТЕНИЙ интерактив</h1>
+            <p>
+              Рассортируйте бюллетени по голосам, поданным за кандидатов, отделяя
+              недействительные бюллетени<br />(15 бюллетеней за 10 мин)
+            </p>
+            <h2>ИСХОДНЫЕ ДАННЫЕ:</h2>
+            <ul>
+              <li>выборы акима сельского округа</li>
+              <li>кандидаты № 1, № 2, № 3</li>
+              <li>члены УИК, выдавшие бюллетени: Ахметова, Мукашева, Алматова</li>
+            </ul>
+            <button onClick={startTest}>Начать тест</button>
+          </div>
         </>
       )}
 
@@ -104,16 +100,15 @@ function App() {
           <div className="timer">⏳ {formatTime(timeLeft)}</div>
           <h1 className="mob">Рассортируйте бюллетени:</h1>
           <div className="image">
-            <img 
-              src={questions[current].image} 
-              className="img" 
-              alt={`Фото вопроса ${current + 1}`} 
+            <img
+              src={questions[current].image}
+              className="img"
+              alt={`Фото вопроса ${current + 1}`}
             />
           </div>
           <div className="app">
             <h1 className="des">Рассортируйте бюллетени:</h1>
             <div className="quiz">
-              <h2>{questions[current].question}</h2>
               <ul>
                 {questions[current].options.map((option, index) => {
                   let className = "";
@@ -137,12 +132,9 @@ function App() {
               </ul>
 
               {isAnswered && (
-                <>
-                  <p className="error-message fade-in">{errorMessage}</p>
-                  <button className="next-btn" onClick={nextQuestion}>
-                    {current + 1 < questions.length ? "Далее" : "Завершить ✅"}
-                  </button>
-                </>
+                <button className="next-btn" onClick={nextQuestion}>
+                  {current + 1 < questions.length ? "Далее" : "Завершить ✅"}
+                </button>
               )}
 
               <p>{current + 1} / {questions.length}</p>
@@ -150,10 +142,13 @@ function App() {
           </div>
         </div>
       )}
+
       {isFinished && (
         <div className="finish-screen">
           <div className="result">
             <h2>Вы ответили правильно на {score} из {questions.length}</h2>
+            {score === questions.length && <p>Отличная работа! Все ответы верны!</p>}
+            {score < questions.length && <p>Попробуйте снова, чтобы улучшить результат.</p>}
             <button onClick={restartTest}>Вернуться на главную</button>
           </div>
         </div>
