@@ -40,13 +40,13 @@ button {
   background: #646cff;
   color: white;
   border: none;
-  padding: 20px;
-  margin-top: 10px;
+  padding: 28px 24px;
+  margin-top: 12px;
   border-radius: 5px;
   cursor: pointer;
   width: 80%;
   transition: 0.3s;
-  font-size: 25px;
+  font-size: 32px;
 }
 
 button:hover {
