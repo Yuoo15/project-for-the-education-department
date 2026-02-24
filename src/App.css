@@ -122,6 +122,61 @@ li {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Progress bar */
+.progress-bar-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: #e0e0e0;
+  z-index: 1001;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: #646cff;
+  transition: width 0.4s ease;
+}
+
+/* Detailed results table */
+.details-table {
+  width: 100%;
+  max-width: 700px;
+  overflow-x: auto;
+  margin: 20px 0;
+}
+
+.details-table h3 {
+  margin-bottom: 10px;
+}
+
+.details-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.details-table th,
+.details-table td {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.details-table th {
+  background: #646cff;
+  color: white;
+}
+
+.row-correct {
+  background: #e8f5e9;
+}
+
+.row-wrong {
+  background: #ffebee;
+}
+
 .error-message {
   font-size: 16px;
   margin-top: 15px;

@@ -2,6 +2,27 @@ import { useState, useEffect } from "react";
 import questions from "./questions";
 import "./App.css";
 
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    if (type === "correct") {
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      osc.frequency.setValueAtTime(900, ctx.currentTime + 0.1);
+    } else {
+      osc.frequency.setValueAtTime(300, ctx.currentTime);
+      osc.frequency.setValueAtTime(180, ctx.currentTime + 0.15);
+    }
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.4);
+  } catch (e) {}
+}
+
 function App() {
   const [current, setCurrent] = useState(0);
   const [score, setScore] = useState(0);
@@ -10,6 +31,7 @@ function App() {
   const [isFinished, setIsFinished] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(10 * 60);
+  const [userAnswers, setUserAnswers] = useState([]);
 
   useEffect(() => {
     if (isFinished || !isStarted) return;
@@ -40,9 +62,18 @@ function App() {
     setSelected(index);
     setIsAnswered(true);
 
-    if (index === questions[current].correct) {
+    const isCorrect = index === questions[current].correct;
+    if (isCorrect) {
       setScore((prev) => prev + 1);
+      playSound("correct");
+    } else {
+      playSound("wrong");
     }
+
+    setUserAnswers((prev) => [
+      ...prev,
+      { questionId: questions[current].id, chosen: index, correct: questions[current].correct },
+    ]);
   };
 
   const nextQuestion = () => {
@@ -63,7 +94,10 @@ function App() {
     setIsFinished(false);
     setTimeLeft(10 * 60);
     setIsStarted(false);
+    setUserAnswers([]);
   };
+
+  const progress = ((current + (isAnswered ? 1 : 0)) / questions.length) * 100;
 
   const startTest = () => {
     setIsStarted(true);
@@ -100,6 +134,9 @@ function App() {
       {isStarted && !isFinished && (
         <div className="content">
           <div className="timer">⏳ {formatTime(timeLeft)}</div>
+          <div className="progress-bar-wrapper">
+            <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
+          </div>
           <h1 className="mob">Рассортируйте бюллетени:</h1>
           <div className="image">
             <img
@@ -151,6 +188,36 @@ function App() {
             <h2>Вы ответили правильно на {score} из {questions.length}</h2>
             {score === questions.length && <p>Отличная работа! Все ответы верны!</p>}
             {score < questions.length && <p>Попробуйте снова, чтобы улучшить результат.</p>}
+            {userAnswers.length > 0 && (
+              <div className="details-table">
+                <h3>Детальные результаты</h3>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>№</th>
+                      <th>Ваш ответ</th>
+                      <th>Правильный ответ</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {userAnswers.map((ans, i) => {
+                      const q = questions.find((q) => q.id === ans.questionId);
+                      const isOk = ans.chosen === ans.correct;
+                      return (
+                        <tr key={i} className={isOk ? "row-correct" : "row-wrong"}>
+                          <td>{ans.questionId}</td>
+                          <td>{q.options[ans.chosen]}</td>
+                          <td>{q.options[ans.correct]}</td>
+                          <td>{isOk ? "✅" : "❌"}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
             <button onClick={restartTest}>Вернуться на главную</button>
           </div>
         </div>
